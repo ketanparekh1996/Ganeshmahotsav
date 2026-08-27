@@ -36,14 +36,16 @@ app.use('/api/logs', logRoutes);
 // Initialize database
 db.initDatabase();
 
-// Serve React build in production
-if (process.env.NODE_ENV === 'production') {
-  const distPath = path.join(__dirname, '../dist');
+// Serve React build
+const distPath = path.join(__dirname, '../dist');
+if (fs.existsSync(distPath)) {
   app.use(express.static(distPath));
   app.get('*', (req, res, next) => {
     if (req.path.startsWith('/api')) return next();
     res.sendFile(path.join(distPath, 'index.html'));
   });
+} else {
+  app.get('/', (req, res) => res.json({ message: 'API running. Frontend not built yet.' }));
 }
 
 app.listen(PORT, () => {
